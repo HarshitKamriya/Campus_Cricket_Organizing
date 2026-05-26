@@ -7,7 +7,7 @@ export const getEvents = (matchId) =>
   api.get(`/matches/${matchId}/events`);
 
 export const undoLastEvent = (matchId) =>
-  api.delete(`/matches/${matchId}/events/last`);
+  api.post(`/matches/${matchId}/undo`);
 
 export const getScoreboard = (matchId) =>
   api.get(`/matches/${matchId}/scoreboard`);

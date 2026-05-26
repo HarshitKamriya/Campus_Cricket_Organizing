@@ -10,7 +10,7 @@ const { authenticate, authorize } = require('../middleware/auth');
  * @desc    Create a new match
  * @access  Private (admin, scorer)
  */
-router.post('/', authenticate, authorize('admin', 'scorer'), matchController.createMatch);
+router.post('/', authenticate, authorize('admin'), matchController.createMatch);
 
 /**
  * @route   GET /api/matches
@@ -31,7 +31,7 @@ router.get('/:id', matchController.getMatch);
  * @desc    Update match
  * @access  Private (admin, scorer)
  */
-router.put('/:id', authenticate, authorize('admin', 'scorer'), matchController.updateMatch);
+router.put('/:id', authenticate, authorize('admin'), matchController.updateMatch);
 
 /**
  * @route   POST /api/matches/:id/start
@@ -53,5 +53,12 @@ router.post('/:id/end-innings', authenticate, authorize('admin', 'scorer'), matc
  * @access  Private (admin, scorer)
  */
 router.post('/:id/end', authenticate, authorize('admin', 'scorer'), matchController.endMatch);
+
+/**
+ * @route   DELETE /api/matches/:id
+ * @desc    Delete the match
+ * @access  Private (admin, scorer)
+ */
+router.delete('/:id', authenticate, authorize('admin'), matchController.deleteMatch);
 
 module.exports = router;

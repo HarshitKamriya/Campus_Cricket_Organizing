@@ -14,6 +14,8 @@ export const endInnings = (id) => api.post(`/matches/${id}/end-innings`);
 
 export const endMatch = (id) => api.post(`/matches/${id}/end`);
 
+export const deleteMatch = (id) => api.delete(`/matches/${id}`);
+
 export default {
   getAllMatches,
   getMatch,
@@ -22,4 +24,5 @@ export default {
   startMatch,
   endInnings,
   endMatch,
+  deleteMatch,
 };

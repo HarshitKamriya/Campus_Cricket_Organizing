@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       role: {
-        type: DataTypes.ENUM('batsman', 'bowler', 'all-rounder', 'wicket-keeper'),
+        type: DataTypes.ENUM('batsman', 'bowler', 'all-rounder', 'batting-all-rounder', 'bowling-all-rounder', 'wicket-keeper'),
         defaultValue: 'all-rounder',
         allowNull: false,
       },

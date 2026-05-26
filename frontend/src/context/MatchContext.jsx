@@ -73,7 +73,7 @@ export function MatchProvider({ children }) {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const res = await api.get(`/matches/${matchId}`);
-      dispatch({ type: 'SET_MATCH', payload: res.data.data || res.data });
+      dispatch({ type: 'SET_MATCH', payload: res.data.match || res.data.data || res.data });
     } catch (err) {
       dispatch({
         type: 'SET_ERROR',
@@ -85,7 +85,7 @@ export function MatchProvider({ children }) {
   const fetchScoreboard = useCallback(async (matchId) => {
     try {
       const res = await api.get(`/matches/${matchId}/scoreboard`);
-      dispatch({ type: 'SET_SCOREBOARD', payload: res.data.data || res.data });
+      dispatch({ type: 'SET_SCOREBOARD', payload: res.data.scoreboard || res.data.data || res.data });
     } catch (err) {
       console.error('Failed to fetch scoreboard:', err);
     }
@@ -94,7 +94,7 @@ export function MatchProvider({ children }) {
   const fetchEvents = useCallback(async (matchId) => {
     try {
       const res = await api.get(`/matches/${matchId}/events`);
-      dispatch({ type: 'SET_EVENTS', payload: res.data.data || res.data || [] });
+      dispatch({ type: 'SET_EVENTS', payload: res.data.events || res.data.data || res.data || [] });
     } catch (err) {
       console.error('Failed to fetch events:', err);
     }

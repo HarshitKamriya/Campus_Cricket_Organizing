@@ -12,40 +12,76 @@ const scoringEngine = require('../services/scoringEngine');
  * @param {import('express').Response} res
  */
 async function createMatch(req, res) {
+  const t = await db.sequelize.transaction();
   try {
     const {
       title,
       venue,
       total_overs,
-      team_a_id,
-      team_b_id,
-      toss_winner_id,
-      toss_decision,
+      team_a,
+      team_b,
+      toss_winner,   // 'team_a' or 'team_b'
+      toss_decision, // 'bat' or 'bowl'
       start_time,
     } = req.body;
 
-    if (!title || !team_a_id || !team_b_id) {
-      return res.status(400).json({ error: 'title, team_a_id, and team_b_id are required.' });
+    if (!title || !team_a || !team_b) {
+      return res.status(400).json({ error: 'title, team_a, and team_b are required.' });
     }
 
-    // Verify teams exist
-    const teamA = await Team.findByPk(team_a_id);
-    const teamB = await Team.findByPk(team_b_id);
-    if (!teamA || !teamB) {
-      return res.status(404).json({ error: 'One or both teams not found.' });
+    if (!team_a.name || !team_b.name) {
+      return res.status(400).json({ error: 'Both teams must have a name.' });
     }
+
+    if (!team_a.players || team_a.players.length !== 11) {
+      return res.status(400).json({ error: 'Team A must have exactly 11 players.' });
+    }
+
+    if (!team_b.players || team_b.players.length !== 11) {
+      return res.status(400).json({ error: 'Team B must have exactly 11 players.' });
+    }
+
+    // Create Team A
+    const teamA = await Team.create({
+      name: team_a.name,
+      short_name: team_a.short_name || team_a.name.substring(0, 5).toUpperCase(),
+    }, { transaction: t });
+
+    // Create Team B
+    const teamB = await Team.create({
+      name: team_b.name,
+      short_name: team_b.short_name || team_b.name.substring(0, 5).toUpperCase(),
+    }, { transaction: t });
+
+    // Create players for Team A
+    const teamAPlayers = team_a.players.map(p => ({
+      name: p.name,
+      role: p.role || 'all-rounder',
+      team_id: teamA.id,
+    }));
+    await Player.bulkCreate(teamAPlayers, { transaction: t });
+
+    // Create players for Team B
+    const teamBPlayers = team_b.players.map(p => ({
+      name: p.name,
+      role: p.role || 'all-rounder',
+      team_id: teamB.id,
+    }));
+    await Player.bulkCreate(teamBPlayers, { transaction: t });
 
     // Determine batting order from toss
-    let firstBattingTeamId = team_a_id;
-    let firstBowlingTeamId = team_b_id;
+    let firstBattingTeamId = teamA.id;
+    let firstBowlingTeamId = teamB.id;
 
-    if (toss_winner_id && toss_decision) {
+    const tossWinnerId = toss_winner === 'team_b' ? teamB.id : teamA.id;
+
+    if (toss_winner && toss_decision) {
       if (toss_decision === 'bat') {
-        firstBattingTeamId = toss_winner_id;
-        firstBowlingTeamId = toss_winner_id === team_a_id ? team_b_id : team_a_id;
+        firstBattingTeamId = tossWinnerId;
+        firstBowlingTeamId = tossWinnerId === teamA.id ? teamB.id : teamA.id;
       } else {
-        firstBowlingTeamId = toss_winner_id;
-        firstBattingTeamId = toss_winner_id === team_a_id ? team_b_id : team_a_id;
+        firstBowlingTeamId = tossWinnerId;
+        firstBattingTeamId = tossWinnerId === teamA.id ? teamB.id : teamA.id;
       }
     }
 
@@ -53,13 +89,13 @@ async function createMatch(req, res) {
       title,
       venue: venue || 'NIT Srinagar',
       total_overs: total_overs || 20,
-      team_a_id,
-      team_b_id,
-      toss_winner_id: toss_winner_id || null,
+      team_a_id: teamA.id,
+      team_b_id: teamB.id,
+      toss_winner_id: tossWinnerId || null,
       toss_decision: toss_decision || null,
       created_by: req.user.id,
       start_time: start_time || null,
-    });
+    }, { transaction: t });
 
     // Create two innings records
     await Innings.bulkCreate([
@@ -77,13 +113,15 @@ async function createMatch(req, res) {
         innings_number: 2,
         status: 'upcoming',
       },
-    ]);
+    ], { transaction: t });
+
+    await t.commit();
 
     // Fetch complete match with associations
     const fullMatch = await Match.findByPk(match.id, {
       include: [
-        { model: Team, as: 'TeamA' },
-        { model: Team, as: 'TeamB' },
+        { model: Team, as: 'TeamA', include: [{ model: Player, as: 'players' }] },
+        { model: Team, as: 'TeamB', include: [{ model: Player, as: 'players' }] },
         { model: Innings, as: 'innings' },
         { model: User, as: 'Creator', attributes: ['id', 'username', 'name'] },
       ],
@@ -91,6 +129,7 @@ async function createMatch(req, res) {
 
     return res.status(201).json({ match: fullMatch });
   } catch (err) {
+    await t.rollback();
     console.error('createMatch error:', err);
     return res.status(500).json({ error: 'Internal server error.' });
   }
@@ -459,6 +498,29 @@ async function endMatch(req, res) {
   }
 }
 
+/**
+ * Delete a match by ID.
+ * DELETE /api/matches/:id
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+async function deleteMatch(req, res) {
+  try {
+    const match = await Match.findByPk(req.params.id);
+    if (!match) {
+      return res.status(404).json({ error: 'Match not found.' });
+    }
+    
+    await match.destroy();
+    
+    return res.json({ message: 'Match deleted successfully.' });
+  } catch (err) {
+    console.error('deleteMatch error:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+}
+
 module.exports = {
   createMatch,
   getAllMatches,
@@ -467,4 +529,5 @@ module.exports = {
   startMatch,
   endInnings,
   endMatch,
+  deleteMatch,
 };

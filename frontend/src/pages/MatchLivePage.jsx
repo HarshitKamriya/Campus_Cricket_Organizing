@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useMatch } from '../context/MatchContext';
 import { useSocket } from '../context/SocketContext';
+import { useAuth } from '../context/AuthContext';
 import Scoreboard from '../components/Scoreboard';
 import OverTicker from '../components/OverTicker';
 import BattingTable from '../components/BattingTable';
@@ -14,6 +15,7 @@ export default function MatchLivePage() {
   const { id } = useParams();
   const { match, scoreboard, fetchScoreboard, fetchMatch, dispatch } = useMatch();
   const { socket, joinMatch, leaveMatch } = useSocket();
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     fetchMatch(id);
@@ -41,8 +43,16 @@ export default function MatchLivePage() {
 
   if (!match || !scoreboard) return <div className="page container"><div className="loading">Loading match...</div></div>;
 
+  const currentInnings = scoreboard?.innings?.find(i => i.status === 'in_progress') || scoreboard?.innings?.[scoreboard.innings.length - 1];
+
   return (
     <div className="page container live-page">
+      {isAuthenticated && (user.role === 'scorer' || user.role === 'admin') && (
+        <div style={{ padding: '1rem', background: 'rgba(255, 204, 0, 0.1)', border: '1px solid #ffcc00', borderRadius: '8px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ color: '#ffcc00' }}>⚠️ You are currently viewing the public read-only match page.</span>
+          <Link to={`/admin/match/${id}`} className="btn btn-primary btn-sm">Switch to Scorer Panel</Link>
+        </div>
+      )}
       <div className="match-header">
         <h2>{match.title}</h2>
         <div className="venue-badge">📍 {match.venue}</div>
@@ -50,11 +60,11 @@ export default function MatchLivePage() {
       <div className="live-grid">
         <div className="main-col">
           <Scoreboard scoreboard={scoreboard} />
-          <OverTicker balls={scoreboard.currentOverBalls || []} over={scoreboard.currentInnings?.totalOvers} />
-          {scoreboard.currentInnings && (
+          <OverTicker balls={currentInnings?.currentOverBalls || []} over={currentInnings?.totals?.overs} />
+          {currentInnings && (
             <>
-              <BattingTable data={scoreboard.batting} />
-              <BowlingTable data={scoreboard.bowling} />
+              <BattingTable data={currentInnings.battingScorecard || []} />
+              <BowlingTable data={currentInnings.bowlingScorecard || []} />
             </>
           )}
         </div>

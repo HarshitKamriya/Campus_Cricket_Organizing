@@ -1,21 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import matchService from '../services/matchService';
 import MatchCard from '../components/MatchCard';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 import '../styles/HomePage.css';
 
 export default function HomePage() {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { isAuthenticated, user } = useAuth();
 
-  useEffect(() => {
+  const loadMatches = () => {
     matchService.getAllMatches().then(res => {
-      setMatches(res.data);
+      setMatches(res.data.matches || []);
       setLoading(false);
     }).catch(err => {
       console.error(err);
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    loadMatches();
   }, []);
+
+  const handleDelete = async (id, e) => {
+    e.stopPropagation(); // Prevent card click
+    if (!window.confirm('Are you sure you want to completely delete this match?')) return;
+    
+    try {
+      await matchService.deleteMatch(id);
+      toast.success('Match deleted successfully');
+      setMatches(prev => prev.filter(m => m.id !== id));
+    } catch (err) {
+      toast.error('Failed to delete match');
+    }
+  };
 
   const hasLive = matches.some(m => m.status === 'live');
 
@@ -34,7 +54,13 @@ export default function HomePage() {
         ) : (
           <div className="match-grid">
             {matches.map(match => (
-              <MatchCard key={match.id} match={match} />
+              <MatchCard 
+                key={match.id} 
+                match={match} 
+                isAdmin={isAuthenticated && user?.role === 'admin'} 
+                isScorer={isAuthenticated && (user?.role === 'admin' || user?.role === 'scorer')}
+                onDelete={(e) => handleDelete(match.id, e)} 
+              />
             ))}
           </div>
         )}

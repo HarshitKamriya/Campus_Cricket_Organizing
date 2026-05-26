@@ -62,11 +62,13 @@ function Navbar() {
           {isAuthenticated ? (
             <>
               <span className="navbar-user">
-                👤 {user?.username || 'Admin'}
+                👤 {user?.username || 'User'}
               </span>
-              <Link to="/admin/setup" className="navbar-link navbar-link-admin" onClick={closeMenu}>
-                Admin Panel
-              </Link>
+              {user?.role === 'admin' && (
+                <Link to="/admin/setup" className="navbar-link navbar-link-admin" onClick={closeMenu}>
+                  Admin Panel
+                </Link>
+              )}
               <button className="btn btn-ghost btn-sm navbar-logout" onClick={handleLogout}>
                 Logout
               </button>

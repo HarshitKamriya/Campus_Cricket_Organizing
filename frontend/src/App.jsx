@@ -40,7 +40,7 @@ function App() {
             <Route
               path="/admin/match/:id"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={['admin', 'scorer']}>
                   <AdminScorerPage />
                 </ProtectedRoute>
               }
@@ -48,7 +48,7 @@ function App() {
             <Route
               path="/admin/setup"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={['admin']}>
                   <AdminMatchSetupPage />
                 </ProtectedRoute>
               }
