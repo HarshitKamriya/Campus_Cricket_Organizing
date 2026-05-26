@@ -9,7 +9,7 @@ export default function BowlingTable({ data = [] }) {
           <tbody>
             {data.map(b => (
               <tr key={b.playerId}>
-                <td>{b.name}</td>
+                <td>{b.playerName}</td>
                 <td>{b.overs}.{b.oversBalls}</td>
                 <td>{b.maidens}</td>
                 <td>{b.runsConceded}</td>

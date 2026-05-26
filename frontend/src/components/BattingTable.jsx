@@ -10,17 +10,15 @@ export default function BattingTable({ data = [] }) {
           <tbody>
             {data.map((b, idx) => {
               // Determine if this batter is currently active (not dismissed)
-              const isActive = b.status === 'batting' || b.status === 'not_out' || b.status === 'not out' || !b.dismissal;
+              const isActive = !b.isOut;
               // First active batter = striker
-              const activeList = data.filter(
-                p => p.status === 'batting' || p.status === 'not_out' || p.status === 'not out' || !p.dismissal
-              );
+              const activeList = data.filter(p => !p.isOut);
               const isStriker = activeList.length > 0 && activeList[0].playerId === b.playerId;
 
               return (
                 <tr key={b.playerId} className={isActive ? 'batting-active' : 'batting-out'}>
                   <td>
-                    {b.name}
+                    {b.playerName}
                     {isStriker && <span className="striker-badge" title="On Strike">*</span>}
                     {isActive && !isStriker && <span className="active-dot" title="At Crease"></span>}
                   </td>

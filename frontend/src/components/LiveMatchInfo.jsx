@@ -22,9 +22,7 @@ export default function LiveMatchInfo({ scoreboard, match }) {
   const runRate = currentInnings.runRate || '0.00';
 
   // Find active batsmen (not out) from the scorecard
-  const activeBatsmen = (battingScorecard || []).filter(
-    (b) => b.status === 'batting' || b.status === 'not_out' || b.status === 'not out' || !b.dismissal
-  );
+  const activeBatsmen = (battingScorecard || []).filter((b) => !b.isOut);
 
   // The last 2 active batsmen are striker and non-striker  
   // We'll show them based on order — first is usually striker
@@ -131,7 +129,7 @@ export default function LiveMatchInfo({ scoreboard, match }) {
             </div>
             {striker ? (
               <div className="lmi-player-details">
-                <span className="lmi-player-name">{striker.name}</span>
+                <span className="lmi-player-name">{striker.playerName}</span>
                 <span className="lmi-player-stats">
                   {striker.runs}<small>({striker.ballsFaced}b)</small>
                   {striker.fours > 0 && <span className="lmi-mini-stat"> • {striker.fours}×4</span>}
@@ -152,7 +150,7 @@ export default function LiveMatchInfo({ scoreboard, match }) {
             </div>
             {nonStriker ? (
               <div className="lmi-player-details">
-                <span className="lmi-player-name">{nonStriker.name}</span>
+                <span className="lmi-player-name">{nonStriker.playerName}</span>
                 <span className="lmi-player-stats">
                   {nonStriker.runs}<small>({nonStriker.ballsFaced}b)</small>
                   {nonStriker.fours > 0 && <span className="lmi-mini-stat"> • {nonStriker.fours}×4</span>}
@@ -174,7 +172,7 @@ export default function LiveMatchInfo({ scoreboard, match }) {
         </h4>
         {currentBowler ? (
           <div className="lmi-bowler-card">
-            <span className="lmi-bowler-name">{currentBowler.name}</span>
+            <span className="lmi-bowler-name">{currentBowler.playerName}</span>
             <div className="lmi-bowler-stats">
               <span>{currentBowler.overs}.{currentBowler.oversBalls} ov</span>
               <span className="lmi-bowler-divider">|</span>

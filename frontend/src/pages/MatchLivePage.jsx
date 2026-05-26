@@ -14,13 +14,14 @@ import '../styles/MatchLivePage.css';
 
 export default function MatchLivePage() {
   const { id } = useParams();
-  const { match, scoreboard, fetchScoreboard, fetchMatch, dispatch } = useMatch();
+  const { match, scoreboard, events, fetchScoreboard, fetchMatch, fetchEvents, dispatch } = useMatch();
   const { socket, joinMatch, leaveMatch } = useSocket();
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     fetchMatch(id);
     fetchScoreboard(id);
+    fetchEvents(id);
     joinMatch(id);
 
     return () => leaveMatch(id);
@@ -29,10 +30,15 @@ export default function MatchLivePage() {
   useEffect(() => {
     if (!socket) return;
     const handleUpdate = (newScoreboard) => dispatch({ type: 'SET_SCOREBOARD', payload: newScoreboard });
-    const handleEvent = (event) => {
-      if (event.is_wicket) toast.error('Wicket! ' + event.commentary, { icon: '🏏' });
-      else if (event.is_boundary_six) toast.success('SIX! ' + event.commentary, { icon: '🔥' });
-      else if (event.is_boundary_four) toast.success('FOUR! ' + event.commentary, { icon: '🎯' });
+    const handleEvent = (data) => {
+      const eventInfo = data.event || data;
+      const commentaryText = data.commentary || eventInfo.commentary;
+
+      if (eventInfo.is_wicket) toast.error('Wicket! ' + commentaryText, { icon: '🏏' });
+      else if (eventInfo.is_boundary_six) toast.success('SIX! ' + commentaryText, { icon: '🔥' });
+      else if (eventInfo.is_boundary_four) toast.success('FOUR! ' + commentaryText, { icon: '🎯' });
+
+      dispatch({ type: 'ADD_EVENT', payload: { ...eventInfo, commentary: commentaryText } });
     };
     socket.on('match:update', handleUpdate);
     socket.on('event:new', handleEvent);
@@ -91,7 +97,7 @@ export default function MatchLivePage() {
           )}
         </div>
         <div className="side-col">
-          <EventLog events={scoreboard.events} />
+          <EventLog events={events || []} />
         </div>
       </div>
     </div>
