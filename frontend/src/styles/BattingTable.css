@@ -1,0 +1,6 @@
+.table-card { padding: var(--space-md); }
+.table-responsive { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th, td { padding: 0.5rem; border-bottom: 1px solid var(--border-color); }
+th { color: var(--text-secondary); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; }
+td strong { color: var(--accent); }

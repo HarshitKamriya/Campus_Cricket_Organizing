@@ -1,0 +1,11 @@
+.scoreboard { text-align: center; border-bottom: 3px solid var(--accent); }
+.sb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md); }
+.sb-team { font-weight: 600; color: var(--text-secondary); }
+.sb-main { margin: var(--space-md) 0; overflow: hidden; }
+.sb-score { font-size: 5rem; font-weight: 800; color: var(--accent); line-height: 1; font-family: var(--font-mono); }
+.sb-wickets { font-size: 3rem; color: var(--text-secondary); }
+.sb-stats { display: flex; justify-content: center; gap: var(--space-xl); background: rgba(0,0,0,0.2); padding: var(--space-sm); border-radius: var(--radius-md); }
+.sb-stat { display: flex; flex-direction: column; }
+.sb-stat span { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+.sb-stat strong { font-size: 1.2rem; font-family: var(--font-mono); }
+@media (max-width: 600px) { .sb-score { font-size: 3.5rem; } .sb-wickets { font-size: 2rem; } .sb-stats { gap: var(--space-md); } }

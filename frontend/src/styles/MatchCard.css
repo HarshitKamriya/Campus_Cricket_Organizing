@@ -1,0 +1,6 @@
+.match-card { cursor: pointer; display: flex; flex-direction: column; gap: 0.75rem; }
+.mc-header { display: flex; justify-content: space-between; align-items: center; }
+.mc-venue { font-size: 0.8rem; color: var(--text-muted); }
+.mc-teams { font-size: 1.25rem; color: var(--accent); }
+.mc-title { font-size: 0.9rem; color: var(--text-secondary); }
+.mc-footer { margin-top: auto; padding-top: 0.75rem; border-top: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-muted); }

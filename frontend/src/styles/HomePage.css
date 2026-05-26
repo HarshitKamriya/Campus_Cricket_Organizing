@@ -1,0 +1,6 @@
+.homepage .hero { text-align: center; margin-bottom: var(--space-2xl); }
+.homepage .hero h1 { font-size: 3rem; background: -webkit-linear-gradient(45deg, var(--accent), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.homepage .hero .subtitle { color: var(--text-secondary); font-size: 1.2rem; }
+.live-indicator { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; color: var(--danger); font-weight: bold; background: rgba(255, 23, 68, 0.15); padding: 0.5rem 1rem; border-radius: var(--radius-full); }
+.match-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-lg); }
+.empty-state { text-align: center; color: var(--text-muted); }

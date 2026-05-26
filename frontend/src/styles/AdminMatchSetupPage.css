@@ -1,0 +1,2 @@
+.setup-page { display: flex; justify-content: center; padding-top: var(--space-xl); }
+.setup-card { width: 100%; max-width: 600px; }

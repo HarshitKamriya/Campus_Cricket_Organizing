@@ -1,0 +1,7 @@
+.live-page { padding-top: var(--space-md); }
+.match-header { margin-bottom: var(--space-lg); text-align: center; }
+.venue-badge { display: inline-block; background: var(--bg-glass); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; }
+.live-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-xl); }
+@media (max-width: 900px) { .live-grid { grid-template-columns: 1fr; } }
+.main-col { display: flex; flex-direction: column; gap: var(--space-lg); }
+.side-col { height: 600px; }

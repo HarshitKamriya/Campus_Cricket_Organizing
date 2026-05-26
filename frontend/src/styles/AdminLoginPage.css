@@ -1,0 +1,6 @@
+.login-page { display: flex; justify-content: center; align-items: center; min-height: 70vh; }
+.login-card { width: 100%; max-width: 400px; padding: var(--space-xl); }
+.login-card .subtitle { color: var(--text-secondary); margin-bottom: var(--space-lg); }
+.form-group { margin-bottom: var(--space-md); display: flex; flex-direction: column; gap: 0.5rem; }
+.error-banner { background: rgba(255, 23, 68, 0.15); color: var(--danger); padding: 0.75rem; border-radius: var(--radius-sm); margin-bottom: var(--space-md); text-align: center; }
+.btn-block { width: 100%; margin-top: var(--space-sm); }

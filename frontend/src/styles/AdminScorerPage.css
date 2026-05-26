@@ -1,0 +1,4 @@
+.scorer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); }
+.scorer-actions { display: flex; gap: var(--space-md); }
+.scorer-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-xl); }
+@media (max-width: 900px) { .scorer-grid { grid-template-columns: 1fr; } .scorer-header { flex-direction: column; gap: var(--space-md); } }

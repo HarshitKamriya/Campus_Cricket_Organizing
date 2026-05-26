@@ -1,0 +1,137 @@
+# Node modules
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+frontend/build/
+backend/build/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+frontend/.env
+backend/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Mac files
+.AppleDouble
+.LSOverride
+
+# Windows files
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Coverage reports
+coverage/
+coverage-final.json
+nyc_output/
+
+# Test output
+jest-cache/
+jest-coverage/
+
+# Docker
+docker-compose.override.yml
+docker-compose.*.yml
+**/Dockerfile
+**/docker-compose.yml
+docker-compose.local.yml
+*.env.docker
+
+# Docker volumes and runtime
+data/
+pgdata/
+postgres-data/
+*.sqlite3
+
+# PostgreSQL local data (if you keep DB files in repo during dev)
+postgres-data/
+pgdata/
+
+# Sequelize / ORM artifacts
+migrations/*.js
+seeders/*.js
+*.sqlite
+
+# Editor temp files
+*.swp
+*~
+*.tmp
+
+# Mac/Linux temp
+*.pid
+*.seed
+
+# Frontend specific
+frontend/node_modules/
+frontend/.cache/
+frontend/.parcel-cache/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+
+# Backend specific
+backend/node_modules/
+backend/.env
+backend/.env.local
+backend/.env.production
+
+# Build artifacts and bundlers
+*.tgz
+*.zip
+
+# VS Code settings sync
+.vscode/settings.json
+
+# Misc
+coverage/
+*.log
+npm-debug.log*
+yarn-debug.log*
+.DS_Store
+
+# Ignore local secrets or keys
+*.pem
+*.key
+*.crt
+
+# Ignore generated reports and exports
+reports/
+exports/
+
+# Ignore local test data and fixtures
+fixtures/
+tmp/
+temp/
+
+# Keep this file tracked
+!.gitignore
