@@ -1,7 +1,7 @@
 .table-card { padding: var(--space-md); }
-.table-responsive { overflow-x: auto; }
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -var(--space-md); padding: 0 var(--space-md); }
 table { width: 100%; border-collapse: collapse; text-align: left; }
-th, td { padding: 0.5rem; border-bottom: 1px solid var(--border-color); }
+th, td { padding: 0.5rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
 th { color: var(--text-secondary); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; }
 td strong { color: var(--accent); }
 
@@ -43,5 +43,10 @@ tr.batting-out {
   background: rgba(255, 255, 255, 0.35);
   margin-left: 6px;
   vertical-align: middle;
+}
+
+@media (max-width: 600px) {
+  th, td { padding: 0.4rem 0.2rem; font-size: 0.85rem; }
+  th { font-size: 0.75rem; }
 }
 

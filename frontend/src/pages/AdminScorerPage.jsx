@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMatch } from '../context/MatchContext';
 import { useSocket } from '../context/SocketContext';
@@ -25,6 +25,8 @@ export default function AdminScorerPage() {
     bowler: ''
   });
 
+  const hasJoinedRef = useRef(false);
+
   useEffect(() => {
     fetchMatch(id);
     fetchScoreboard(id);
@@ -32,15 +34,29 @@ export default function AdminScorerPage() {
   }, [id]);
 
   useEffect(() => {
-    if (socket && connected) {
+    if (connected) {
       joinMatch(id);
-      return () => leaveMatch(id);
+      hasJoinedRef.current = true;
     }
-  }, [socket, connected, id, joinMatch, leaveMatch]);
+    return () => {
+      if (hasJoinedRef.current) {
+        leaveMatch(id);
+        hasJoinedRef.current = false;
+      }
+    };
+  }, [connected, id, joinMatch, leaveMatch]);
 
   useEffect(() => {
     if (!socket) return;
-    const handleUpdate = (newScoreboard) => dispatch({ type: 'SET_SCOREBOARD', payload: newScoreboard });
+    const handleUpdate = (data) => {
+      if (data && data.innings && Array.isArray(data.innings)) {
+        dispatch({ type: 'SET_SCOREBOARD', payload: data });
+      } else {
+        fetchMatch(id);
+        fetchScoreboard(id);
+        fetchEvents(id);
+      }
+    };
     const handleEvent = (data) => {
       const eventInfo = data.event || data;
       const commentaryText = data.commentary || eventInfo.commentary;
@@ -52,7 +68,7 @@ export default function AdminScorerPage() {
       socket.off('match:update', handleUpdate);
       socket.off('event:new', handleEvent);
     };
-  }, [socket, dispatch]);
+  }, [socket, dispatch, id, fetchMatch, fetchScoreboard, fetchEvents]);
 
   const handleEventSubmit = async (eventData) => {
     if (!selectedPlayers.striker || !selectedPlayers.bowler) {

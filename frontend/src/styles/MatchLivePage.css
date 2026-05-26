@@ -68,3 +68,25 @@
   border-color: rgba(0, 229, 255, 0.3);
   background: rgba(0, 229, 255, 0.06);
 }
+
+/* ── Live Connection Status Indicator ── */
+.live-dot {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+.live-dot.connected {
+  color: #00e676;
+  background: rgba(0, 230, 118, 0.1);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+.live-dot.disconnected {
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

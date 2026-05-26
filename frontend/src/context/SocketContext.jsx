@@ -3,12 +3,14 @@ import { io } from 'socket.io-client';
 
 const SocketContext = createContext(null);
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
 export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
   const socketRef = useRef(null);
+  // Track which rooms we've joined so we can re-join after reconnection
+  const joinedRoomsRef = useRef(new Set());
 
   useEffect(() => {
     const newSocket = io(SOCKET_URL, {
@@ -23,6 +25,14 @@ export function SocketProvider({ children }) {
     newSocket.on('connect', () => {
       console.log('[Socket] Connected:', newSocket.id);
       setConnected(true);
+
+      // Re-join all previously joined rooms after reconnection
+      // This is critical — when the socket reconnects, the server
+      // assigns a new socket ID and the old room memberships are lost.
+      joinedRoomsRef.current.forEach((matchId) => {
+        console.log('[Socket] Re-joining match after connect:', matchId);
+        newSocket.emit('match:join', matchId);
+      });
     });
 
     newSocket.on('disconnect', (reason) => {
@@ -46,14 +56,21 @@ export function SocketProvider({ children }) {
     return () => {
       newSocket.disconnect();
       socketRef.current = null;
+      joinedRoomsRef.current.clear();
     };
   }, []);
 
   const joinMatch = useCallback(
     (matchId) => {
+      // Always track the room, even if not connected yet.
+      // The 'connect' handler will re-join tracked rooms.
+      joinedRoomsRef.current.add(String(matchId));
+
       if (socketRef.current && socketRef.current.connected) {
         console.log('[Socket] Joining match:', matchId);
         socketRef.current.emit('match:join', matchId);
+      } else {
+        console.log('[Socket] Not connected yet, will join match', matchId, 'on connect');
       }
     },
     []
@@ -61,6 +78,8 @@ export function SocketProvider({ children }) {
 
   const leaveMatch = useCallback(
     (matchId) => {
+      joinedRoomsRef.current.delete(String(matchId));
+
       if (socketRef.current && socketRef.current.connected) {
         console.log('[Socket] Leaving match:', matchId);
         socketRef.current.emit('match:leave', matchId);

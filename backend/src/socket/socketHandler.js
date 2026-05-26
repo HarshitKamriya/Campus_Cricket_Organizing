@@ -9,14 +9,18 @@ module.exports = function setupSocket(io) {
 
     // Join a match room for real-time score updates
     socket.on('match:join', (matchId) => {
-      socket.join(`match:${matchId}`);
-      console.log(`${socket.id} joined match:${matchId}`);
+      const room = `match:${matchId}`;
+      socket.join(room);
+      console.log(`${socket.id} joined ${room}`);
+      // Acknowledge the join so the client knows it succeeded
+      socket.emit('match:joined', { matchId, room });
     });
 
     // Leave a match room
     socket.on('match:leave', (matchId) => {
-      socket.leave(`match:${matchId}`);
-      console.log(`${socket.id} left match:${matchId}`);
+      const room = `match:${matchId}`;
+      socket.leave(room);
+      console.log(`${socket.id} left ${room}`);
     });
 
     socket.on('disconnect', () => {

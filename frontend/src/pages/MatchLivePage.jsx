@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useMatch } from '../context/MatchContext';
 import { useSocket } from '../context/SocketContext';
@@ -17,23 +17,50 @@ export default function MatchLivePage() {
   const { match, scoreboard, events, fetchScoreboard, fetchMatch, fetchEvents, dispatch } = useMatch();
   const { socket, joinMatch, leaveMatch, connected } = useSocket();
   const { user, isAuthenticated } = useAuth();
+  const hasJoinedRef = useRef(false);
 
+  // Fetch initial data
   useEffect(() => {
     fetchMatch(id);
     fetchScoreboard(id);
     fetchEvents(id);
   }, [id]);
 
+  // Join the socket room — fires on mount and whenever connection state changes
   useEffect(() => {
-    if (socket && connected) {
+    if (connected) {
       joinMatch(id);
-      return () => leaveMatch(id);
+      hasJoinedRef.current = true;
     }
-  }, [socket, connected, id, joinMatch, leaveMatch]);
+    return () => {
+      if (hasJoinedRef.current) {
+        leaveMatch(id);
+        hasJoinedRef.current = false;
+      }
+    };
+  }, [connected, id, joinMatch, leaveMatch]);
 
+  // Listen for real-time socket events
   useEffect(() => {
     if (!socket) return;
-    const handleUpdate = (newScoreboard) => dispatch({ type: 'SET_SCOREBOARD', payload: newScoreboard });
+
+    const handleUpdate = (data) => {
+      // The eventController sends the full scoreboard object directly.
+      // The matchController sends objects like { type: 'match_started', ... }
+      // which are NOT scoreboard objects. In that case, re-fetch from server.
+      if (data && data.innings && Array.isArray(data.innings)) {
+        // This looks like a proper scoreboard — use it directly
+        dispatch({ type: 'SET_SCOREBOARD', payload: data });
+      } else {
+        // Non-scoreboard update (match started/ended, innings ended, etc.)
+        // Re-fetch everything from the API
+        console.log('[MatchLive] Received non-scoreboard update, re-fetching:', data?.type || 'unknown');
+        fetchMatch(id);
+        fetchScoreboard(id);
+        fetchEvents(id);
+      }
+    };
+
     const handleEvent = (data) => {
       const eventInfo = data.event || data;
       const commentaryText = data.commentary || eventInfo.commentary;
@@ -44,13 +71,15 @@ export default function MatchLivePage() {
 
       dispatch({ type: 'ADD_EVENT', payload: { ...eventInfo, commentary: commentaryText } });
     };
+
     socket.on('match:update', handleUpdate);
     socket.on('event:new', handleEvent);
+
     return () => {
       socket.off('match:update', handleUpdate);
       socket.off('event:new', handleEvent);
     };
-  }, [socket, dispatch]);
+  }, [socket, dispatch, id, fetchMatch, fetchScoreboard, fetchEvents]);
 
   if (!match || !scoreboard) return <div className="page container"><div className="loading">Loading match...</div></div>;
 
@@ -74,6 +103,11 @@ export default function MatchLivePage() {
           <div className="spectator-banner-content">
             <span className="spectator-icon">👁️</span>
             <span className="spectator-text">Spectator Mode — View Only</span>
+            {connected ? (
+              <span className="live-dot connected" title="Live updates active">● Live</span>
+            ) : (
+              <span className="live-dot disconnected" title="Reconnecting...">● Connecting...</span>
+            )}
           </div>
           <Link to="/admin/login" className="spectator-login-link">
             🔐 Admin Login
