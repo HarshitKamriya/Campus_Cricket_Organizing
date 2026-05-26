@@ -6,6 +6,7 @@ import matchService from '../services/matchService';
 import eventService from '../services/eventService';
 import Scoreboard from '../components/Scoreboard';
 import OverTicker from '../components/OverTicker';
+import OverHistory from '../components/OverHistory';
 import BattingTable from '../components/BattingTable';
 import BowlingTable from '../components/BowlingTable';
 import EventControls from '../components/EventControls';
@@ -157,6 +158,11 @@ export default function AdminScorerPage() {
           <OverTicker balls={currentInnings?.currentOverBalls || []} over={currentInnings?.totals?.overs} />
           {currentInnings ? (
             <>
+              <OverHistory 
+                events={events} 
+                currentInningsId={currentInnings.id} 
+                currentOver={currentInnings.totals.overs} 
+              />
               <BattingTable data={currentInnings.battingScorecard || []} />
               <BowlingTable data={currentInnings.bowlingScorecard || []} />
               <div className="glass-card" style={{marginTop: '20px'}}>

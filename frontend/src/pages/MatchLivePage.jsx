@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import Scoreboard from '../components/Scoreboard';
 import LiveMatchInfo from '../components/LiveMatchInfo';
 import OverTicker from '../components/OverTicker';
+import OverHistory from '../components/OverHistory';
 import BattingTable from '../components/BattingTable';
 import BowlingTable from '../components/BowlingTable';
 import EventLog from '../components/EventLog';
@@ -129,6 +130,11 @@ export default function MatchLivePage() {
           <OverTicker balls={currentInnings?.currentOverBalls || []} over={currentInnings?.totals?.overs} />
           {currentInnings && (
             <>
+              <OverHistory 
+                events={events} 
+                currentInningsId={currentInnings.id} 
+                currentOver={currentInnings.totals.overs} 
+              />
               <BattingTable data={currentInnings.battingScorecard || []} />
               <BowlingTable data={currentInnings.bowlingScorecard || []} />
             </>
