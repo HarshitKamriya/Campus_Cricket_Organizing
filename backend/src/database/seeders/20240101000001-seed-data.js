@@ -7,8 +7,8 @@ module.exports = {
     const now = new Date();
 
     // --- Users ---
-    const adminHash = bcrypt.hashSync('admin123', 10);
-    const scorerHash = bcrypt.hashSync('scorer123', 10);
+    const adminHash = bcrypt.hashSync('admin#123', 10);
+    const scorerHash = bcrypt.hashSync('scorer#123', 10);
 
     await queryInterface.bulkInsert('users', [
       {
