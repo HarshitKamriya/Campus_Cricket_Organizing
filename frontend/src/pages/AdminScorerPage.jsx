@@ -47,6 +47,30 @@ export default function AdminScorerPage() {
     };
   }, [connected, id, joinMatch, leaveMatch]);
 
+  // Track over completion
+  const previousOversRef = useRef(0);
+  const currentInnings = scoreboard?.innings?.find(i => i.status === 'in_progress');
+
+  useEffect(() => {
+    if (currentInnings?.totals) {
+      const currentOvers = currentInnings.totals.overs;
+      const currentBalls = currentInnings.totals.balls;
+      
+      if (currentBalls === 0 && currentOvers > 0 && previousOversRef.current !== currentOvers) {
+        toast('Over completed! Strikers swapped. Please change bowler.', { icon: '🔄', duration: 4000 });
+        
+        setSelectedPlayers(prev => ({
+           ...prev,
+           striker: prev.nonStriker,
+           nonStriker: prev.striker,
+           bowler: ''
+        }));
+      }
+      
+      previousOversRef.current = currentOvers;
+    }
+  }, [currentInnings?.totals?.overs, currentInnings?.totals?.balls]);
+
   useEffect(() => {
     if (!socket) return;
     const handleUpdate = (data) => {
@@ -131,7 +155,6 @@ export default function AdminScorerPage() {
 
   if (!match || !scoreboard) return <div className="page container">Loading...</div>;
 
-  const currentInnings = scoreboard.innings?.find(i => i.status === 'in_progress');
   let battingPlayers = [];
   let bowlingPlayers = [];
   
@@ -165,15 +188,23 @@ export default function AdminScorerPage() {
               />
               <BattingTable data={currentInnings.battingScorecard || []} />
               <BowlingTable data={currentInnings.bowlingScorecard || []} />
-              <div className="glass-card" style={{marginTop: '20px'}}>
-                <h3 className="section-title">Add Event</h3>
-              <EventControls 
-                onSubmit={handleEventSubmit} 
-                players={{ batting: battingPlayers, bowling: bowlingPlayers }}
-                selectedPlayers={selectedPlayers}
-                onSelectPlayer={(role, val) => setSelectedPlayers(prev => ({...prev, [role]: val}))}
-              />
-              </div>
+              {currentInnings.totals.overs >= match.total_overs ? (
+                <div className="glass-card" style={{marginTop: '20px', textAlign: 'center', padding: '2rem'}}>
+                  <h3 className="section-title" style={{color: 'var(--danger)', justifyContent: 'center', marginBottom: '10px'}}>Maximum Overs Reached</h3>
+                  <p style={{marginBottom: '1rem', color: 'var(--text-secondary)'}}>This innings has reached its maximum limit of {match.total_overs} overs.</p>
+                  <button className="btn btn-primary" onClick={handleEndInnings}>End Innings Now</button>
+                </div>
+              ) : (
+                <div className="glass-card" style={{marginTop: '20px'}}>
+                  <h3 className="section-title">Add Event</h3>
+                  <EventControls 
+                    onSubmit={handleEventSubmit} 
+                    players={{ batting: battingPlayers, bowling: bowlingPlayers }}
+                    selectedPlayers={selectedPlayers}
+                    onSelectPlayer={(role, val) => setSelectedPlayers(prev => ({...prev, [role]: val}))}
+                  />
+                </div>
+              )}
             </>
           ) : match.status === 'upcoming' ? (
              <div className="glass-card" style={{ textAlign: 'center', padding: '2rem' }}>

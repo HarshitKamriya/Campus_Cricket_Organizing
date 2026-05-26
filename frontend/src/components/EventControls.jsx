@@ -74,25 +74,45 @@ export default function EventControls({ onSubmit, players, selectedPlayers, onSe
 
   // --- Renderers ---
 
+  const handlePlayerSelect = (role, val) => {
+    if (!val) {
+      onSelectPlayer(role, val);
+      return;
+    }
+    
+    const isBatting = role === 'striker' || role === 'nonStriker';
+    const playerList = isBatting ? players.batting : players.bowling;
+    const player = playerList.find(p => p.id === val);
+    
+    if (player) {
+      const confirmMsg = `Confirm setting ${player.name} as ${role === 'nonStriker' ? 'Non-Striker' : role.charAt(0).toUpperCase() + role.slice(1)}?`;
+      if (window.confirm(confirmMsg)) {
+        onSelectPlayer(role, val);
+      }
+    } else {
+      onSelectPlayer(role, val);
+    }
+  };
+
   const renderPlayerSelects = () => (
     <div className="player-selections">
       <div className="form-group">
         <label>Striker</label>
-        <select value={selectedPlayers.striker} onChange={(e) => onSelectPlayer('striker', parseInt(e.target.value) || '')}>
+        <select value={selectedPlayers.striker} onChange={(e) => handlePlayerSelect('striker', parseInt(e.target.value) || '')}>
           <option value="">Select</option>
           {players.batting.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
       <div className="form-group">
         <label>Non-Striker</label>
-        <select value={selectedPlayers.nonStriker} onChange={(e) => onSelectPlayer('nonStriker', parseInt(e.target.value) || '')}>
+        <select value={selectedPlayers.nonStriker} onChange={(e) => handlePlayerSelect('nonStriker', parseInt(e.target.value) || '')}>
           <option value="">Select</option>
           {players.batting.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
       <div className="form-group">
         <label>Bowler</label>
-        <select value={selectedPlayers.bowler} onChange={(e) => onSelectPlayer('bowler', parseInt(e.target.value) || '')}>
+        <select value={selectedPlayers.bowler} onChange={(e) => handlePlayerSelect('bowler', parseInt(e.target.value) || '')}>
           <option value="">Select</option>
           {players.bowling.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
