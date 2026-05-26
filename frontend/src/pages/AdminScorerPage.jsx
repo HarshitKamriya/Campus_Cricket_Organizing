@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMatch } from '../context/MatchContext';
+import { useSocket } from '../context/SocketContext';
 import matchService from '../services/matchService';
 import eventService from '../services/eventService';
 import Scoreboard from '../components/Scoreboard';
@@ -15,7 +16,8 @@ import '../styles/AdminScorerPage.css';
 export default function AdminScorerPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { match, scoreboard, events, fetchMatch, fetchScoreboard, fetchEvents } = useMatch();
+  const { match, scoreboard, events, fetchMatch, fetchScoreboard, fetchEvents, dispatch } = useMatch();
+  const { socket, joinMatch, leaveMatch } = useSocket();
   
   const [selectedPlayers, setSelectedPlayers] = useState({
     striker: '',
@@ -27,7 +29,26 @@ export default function AdminScorerPage() {
     fetchMatch(id);
     fetchScoreboard(id);
     fetchEvents(id);
+    joinMatch(id);
+
+    return () => leaveMatch(id);
   }, [id]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleUpdate = (newScoreboard) => dispatch({ type: 'SET_SCOREBOARD', payload: newScoreboard });
+    const handleEvent = (data) => {
+      const eventInfo = data.event || data;
+      const commentaryText = data.commentary || eventInfo.commentary;
+      dispatch({ type: 'ADD_EVENT', payload: { ...eventInfo, commentary: commentaryText } });
+    };
+    socket.on('match:update', handleUpdate);
+    socket.on('event:new', handleEvent);
+    return () => {
+      socket.off('match:update', handleUpdate);
+      socket.off('event:new', handleEvent);
+    };
+  }, [socket, dispatch]);
 
   const handleEventSubmit = async (eventData) => {
     if (!selectedPlayers.striker || !selectedPlayers.bowler) {
