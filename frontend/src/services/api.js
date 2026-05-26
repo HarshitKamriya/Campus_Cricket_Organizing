@@ -27,8 +27,8 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('cc_token');
       localStorage.removeItem('cc_user');
-      // Redirect to login if not already there
-      if (window.location.pathname !== '/admin/login') {
+      // Only redirect to login if on an admin page (not public spectator pages)
+      if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
         window.location.href = '/admin/login';
       }
     }

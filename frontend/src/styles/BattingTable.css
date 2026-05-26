@@ -4,3 +4,44 @@ table { width: 100%; border-collapse: collapse; text-align: left; }
 th, td { padding: 0.5rem; border-bottom: 1px solid var(--border-color); }
 th { color: var(--text-secondary); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; }
 td strong { color: var(--accent); }
+
+/* Active vs Out batsmen */
+tr.batting-active {
+  background: rgba(0, 229, 255, 0.04);
+}
+tr.batting-out {
+  opacity: 0.55;
+}
+
+/* Striker asterisk badge */
+.striker-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #00e5ff;
+  line-height: 1;
+  vertical-align: middle;
+  animation: strikerPulse 2s ease-in-out infinite;
+}
+
+@keyframes strikerPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Active (non-striker) dot */
+.active-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useMatch } from '../context/MatchContext';
 import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
 import Scoreboard from '../components/Scoreboard';
+import LiveMatchInfo from '../components/LiveMatchInfo';
 import OverTicker from '../components/OverTicker';
 import BattingTable from '../components/BattingTable';
 import BowlingTable from '../components/BowlingTable';
@@ -45,20 +46,41 @@ export default function MatchLivePage() {
 
   const currentInnings = scoreboard?.innings?.find(i => i.status === 'in_progress') || scoreboard?.innings?.[scoreboard.innings.length - 1];
 
+  const isAdminOrScorer = isAuthenticated && (user.role === 'scorer' || user.role === 'admin');
+
   return (
     <div className="page container live-page">
-      {isAuthenticated && (user.role === 'scorer' || user.role === 'admin') && (
-        <div style={{ padding: '1rem', background: 'rgba(255, 204, 0, 0.1)', border: '1px solid #ffcc00', borderRadius: '8px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ color: '#ffcc00' }}>⚠️ You are currently viewing the public read-only match page.</span>
+      {/* Admin/Scorer banner — switch to scorer panel */}
+      {isAdminOrScorer && (
+        <div className="scorer-switch-banner">
+          <span className="scorer-switch-text">⚠️ You are viewing the public read-only page.</span>
           <Link to={`/admin/match/${id}`} className="btn btn-primary btn-sm">Switch to Scorer Panel</Link>
         </div>
       )}
+
+      {/* Spectator-only info banner for non-logged-in users */}
+      {!isAuthenticated && (
+        <div className="spectator-banner">
+          <div className="spectator-banner-content">
+            <span className="spectator-icon">👁️</span>
+            <span className="spectator-text">Spectator Mode — View Only</span>
+          </div>
+          <Link to="/admin/login" className="spectator-login-link">
+            🔐 Admin Login
+          </Link>
+        </div>
+      )}
+
       <div className="match-header">
         <h2>{match.title}</h2>
         <div className="venue-badge">📍 {match.venue}</div>
       </div>
+
       <div className="live-grid">
         <div className="main-col">
+          {/* Rich spectator info panel — always visible */}
+          <LiveMatchInfo scoreboard={scoreboard} match={match} />
+
           <Scoreboard scoreboard={scoreboard} />
           <OverTicker balls={currentInnings?.currentOverBalls || []} over={currentInnings?.totals?.overs} />
           {currentInnings && (

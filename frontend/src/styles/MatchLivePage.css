@@ -5,3 +5,66 @@
 @media (max-width: 900px) { .live-grid { grid-template-columns: 1fr; } }
 .main-col { display: flex; flex-direction: column; gap: var(--space-lg); }
 .side-col { height: 600px; }
+
+/* ── Scorer Switch Banner (for logged-in admins/scorers) ── */
+.scorer-switch-banner {
+  padding: 12px 18px;
+  background: rgba(255, 204, 0, 0.08);
+  border: 1px solid rgba(255, 204, 0, 0.25);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  backdrop-filter: blur(8px);
+}
+.scorer-switch-text {
+  color: #ffcc00;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+/* ── Spectator Banner (for non-logged-in users) ── */
+.spectator-banner {
+  padding: 10px 18px;
+  background: linear-gradient(90deg, rgba(0, 229, 255, 0.06), rgba(120, 87, 255, 0.06));
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  backdrop-filter: blur(8px);
+}
+.spectator-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.spectator-icon {
+  font-size: 1.1rem;
+}
+.spectator-text {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.spectator-login-link {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+.spectator-login-link:hover {
+  color: #00e5ff;
+  border-color: rgba(0, 229, 255, 0.3);
+  background: rgba(0, 229, 255, 0.06);
+}
