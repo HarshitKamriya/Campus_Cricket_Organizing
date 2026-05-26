@@ -15,17 +15,21 @@ import '../styles/MatchLivePage.css';
 export default function MatchLivePage() {
   const { id } = useParams();
   const { match, scoreboard, events, fetchScoreboard, fetchMatch, fetchEvents, dispatch } = useMatch();
-  const { socket, joinMatch, leaveMatch } = useSocket();
+  const { socket, joinMatch, leaveMatch, connected } = useSocket();
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     fetchMatch(id);
     fetchScoreboard(id);
     fetchEvents(id);
-    joinMatch(id);
-
-    return () => leaveMatch(id);
   }, [id]);
+
+  useEffect(() => {
+    if (socket && connected) {
+      joinMatch(id);
+      return () => leaveMatch(id);
+    }
+  }, [socket, connected, id, joinMatch, leaveMatch]);
 
   useEffect(() => {
     if (!socket) return;
