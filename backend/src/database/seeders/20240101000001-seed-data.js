@@ -6,6 +6,16 @@ module.exports = {
     const bcrypt = require('bcryptjs');
     const now = new Date();
 
+    // Check if data is already seeded by looking for the admin user
+    const [existingUsers] = await queryInterface.sequelize.query(
+      "SELECT id FROM users WHERE username = 'admin'"
+    );
+
+    if (existingUsers && existingUsers.length > 0) {
+      console.log('Database already seeded. Skipping seed execution.');
+      return;
+    }
+
     // --- Users ---
     const adminHash = bcrypt.hashSync('admin#123', 10);
     const scorerHash = bcrypt.hashSync('scorer#123', 10);
