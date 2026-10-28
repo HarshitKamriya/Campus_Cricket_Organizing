@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-
+//
 const files = {
   "frontend/Dockerfile": `FROM node:20-alpine AS build
 WORKDIR /app
